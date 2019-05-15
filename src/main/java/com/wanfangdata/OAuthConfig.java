@@ -18,17 +18,30 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class OAuthConfig {
     @Bean
-    public ApiClient apiClient() throws IOException {
-        ApiClient client = new ApiClient();
-        InputStream cacertReader = new FileInputStream("/var/run/secrets/kubernetes.io/serviceaccount/token");
+    public ApiClient apiClient() throws IOException, ApiException {
+           ApiClient client = new ApiClient();
+        InputStream cacertReader = new FileInputStream("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt");
         client.setSslCaCert(cacertReader);
-        client.setBasePath("https://kubernetes/");
+        client.setBasePath("https://kubernetes.default/");
         client.getHttpClient().setReadTimeout(60, TimeUnit.MINUTES);
         ApiKeyAuth apiKeyAuth = (ApiKeyAuth) client.getAuthentication("BearerToken");
         FileReader fileReader = new FileReader("/var/run/secrets/kubernetes.io/serviceaccount/token");
         StringWriter stringWriter = new StringWriter();
         IOUtils.copy(fileReader,stringWriter);
         apiKeyAuth.setApiKey(new String(stringWriter.getBuffer()));
+        io.kubernetes.client.Configuration.setDefaultApiClient(client);
+
+        CoreV1Api coreV1Api = new CoreV1Api();
+        V1NamespaceList v1NamespaceList = coreV1Api.listNamespace(null
+                , null
+                , null
+                , null
+                , null
+                , null
+                , null
+                , null
+                , null);
+        System.out.println(v1NamespaceList);
         return client;
     }
 }
