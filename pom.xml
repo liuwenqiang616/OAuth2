@@ -35,7 +35,7 @@
 
     <build>
         <!--构建产生的所有文件存放的目录-->
-        <directory>../output/${project.artifactId}</directory>
+        <directory>/output/${project.artifactId}</directory>
         <!--将指定目录作为resources目录-->
         <resources>
             <resource>
